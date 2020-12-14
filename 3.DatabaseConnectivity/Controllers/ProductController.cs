@@ -63,5 +63,21 @@ namespace _3.DatabaseConnectivity.Controllers
             }
             return View(products);
         }
+
+        public ActionResult Delete(int id)
+        {
+            if (id < 0)
+                return HttpNotFound();
+            using (SqlConnection con = new SqlConnection(StoreConnection.GetConnection()))
+            {
+                using (SqlCommand cmd = new SqlCommand("DELETE FROM Products WHERE Id = '"+id+"'", con))
+                {
+                    if (con.State != System.Data.ConnectionState.Open)
+                        con.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            return RedirectToAction("GetAll");
+        }
     }
 }
