@@ -15,15 +15,17 @@ namespace _3.DatabaseConnectivity.Controllers
         // GET: Product
         public ActionResult Create()
         {
-            return View();
+            return View(new Product { Id = 0 });
         }
 
         [HttpPost]
         public ActionResult Create(Product product)
         {
+            string insertSql = "INSERT INTO Products(Name, Price, Supplier) VALUES ('" + product.Name + "','" + product.Price + "','" + product.Supplier + "')";
+            string updateSql = "UPDATE Products SET Name = '" + product.Name + "', Price = '"+product.Price+"', Supplier = '"+product.Supplier+"' WHERE Id = '"+product.Id+"'";
             using (SqlConnection con = new SqlConnection(StoreConnection.GetConnection()))
             {
-                using (SqlCommand cmd = new SqlCommand("INSERT INTO Products(Name, Price, Supplier) VALUES ('"+product.Name+"','"+product.Price+"','"+product.Supplier+"')", con))
+                using (SqlCommand cmd = new SqlCommand(product.Id > 0 ? updateSql : insertSql, con))
                 {
                     if (con.State != System.Data.ConnectionState.Open)
                         con.Open();
@@ -78,6 +80,39 @@ namespace _3.DatabaseConnectivity.Controllers
                 }
             }
             return RedirectToAction("GetAll");
+        }
+
+        public ActionResult Edit(int id)
+        {
+            if (id < 0)
+                return HttpNotFound();
+            var _product = new Product();
+            using (SqlConnection con = new SqlConnection(StoreConnection.GetConnection()))
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM Products WHERE Id = '"+id+"'", con))
+                {
+                    if (con.State != System.Data.ConnectionState.Open)
+                        con.Open();
+                    SqlDataReader sdr = cmd.ExecuteReader();
+                    DataTable dt = new DataTable();
+                    if (sdr.HasRows)
+                    {
+                        dt.Load(sdr);
+                        DataRow row = dt.Rows[0];
+                        _product.Id = Convert.ToInt32(row["Id"]);
+                        _product.Name = row["Name"].ToString();
+                        _product.Price = Convert.ToDecimal(row["Price"]);
+                        _product.Supplier = row["Supplier"].ToString();
+
+                        return View("Create", _product);
+                    }
+                    else
+                    {
+                        return HttpNotFound();
+                    }
+
+                }
+            }
         }
     }
 }
