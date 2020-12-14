@@ -21,18 +21,22 @@ namespace _3.DatabaseConnectivity.Controllers
         [HttpPost]
         public ActionResult Create(Product product)
         {
-            string insertSql = "INSERT INTO Products(Name, Price, Supplier) VALUES ('" + product.Name + "','" + product.Price + "','" + product.Supplier + "')";
-            string updateSql = "UPDATE Products SET Name = '" + product.Name + "', Price = '"+product.Price+"', Supplier = '"+product.Supplier+"' WHERE Id = '"+product.Id+"'";
             using (SqlConnection con = new SqlConnection(StoreConnection.GetConnection()))
             {
-                using (SqlCommand cmd = new SqlCommand(product.Id > 0 ? updateSql : insertSql, con))
+                using (SqlCommand cmd = new SqlCommand("Products_SaveOrUpdate", con))
                 {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Id", product.Id);
+                    cmd.Parameters.AddWithValue("@Name", product.Name);
+                    cmd.Parameters.AddWithValue("@Price", product.Price);
+                    cmd.Parameters.AddWithValue("@Supplier", product.Supplier);
+
                     if (con.State != System.Data.ConnectionState.Open)
                         con.Open();
                     cmd.ExecuteNonQuery();
                 }
             }
-            return Content("Record is save in the database");
+            return RedirectToAction("GetAll");
         }
 
         public ActionResult GetAll()
@@ -40,8 +44,9 @@ namespace _3.DatabaseConnectivity.Controllers
             List<Product> products = new List<Product>();
             using (SqlConnection con = new SqlConnection(StoreConnection.GetConnection()))
             {
-                using (SqlCommand cmd = new SqlCommand("SELECT * FROM Products", con))
+                using (SqlCommand cmd = new SqlCommand("Products_GetAllProducts", con))
                 {
+                    cmd.CommandType = CommandType.StoredProcedure;
                     if (con.State != System.Data.ConnectionState.Open)
                         con.Open();
 
@@ -72,8 +77,10 @@ namespace _3.DatabaseConnectivity.Controllers
                 return HttpNotFound();
             using (SqlConnection con = new SqlConnection(StoreConnection.GetConnection()))
             {
-                using (SqlCommand cmd = new SqlCommand("DELETE FROM Products WHERE Id = '"+id+"'", con))
+                using (SqlCommand cmd = new SqlCommand("Product_DeleteById", con))
                 {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Id", id);
                     if (con.State != System.Data.ConnectionState.Open)
                         con.Open();
                     cmd.ExecuteNonQuery();
@@ -89,8 +96,10 @@ namespace _3.DatabaseConnectivity.Controllers
             var _product = new Product();
             using (SqlConnection con = new SqlConnection(StoreConnection.GetConnection()))
             {
-                using (SqlCommand cmd = new SqlCommand("SELECT * FROM Products WHERE Id = '"+id+"'", con))
+                using (SqlCommand cmd = new SqlCommand("Products_GetById", con))
                 {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Id", id);
                     if (con.State != System.Data.ConnectionState.Open)
                         con.Open();
                     SqlDataReader sdr = cmd.ExecuteReader();
