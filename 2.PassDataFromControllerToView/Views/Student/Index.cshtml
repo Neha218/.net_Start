@@ -1,0 +1,22 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Student List</h2>
+<p>This is a student list</p>
+
+@{ 
+    var firstNumber = 5;
+    var secondNumber = 3;
+    var total = firstNumber + secondNumber;
+    <p>Sum of two numbers is @total</p>
+}
+
+@{ 
+    <h3>Table of 2</h3>
+    for(int i = 1; i <= 10; i++)
+    {
+        <p>2 X @i = @(2*i)</p>
+    }
+}
