@@ -39,14 +39,17 @@ namespace _3.DatabaseConnectivity.Controllers
             return RedirectToAction("GetAll");
         }
 
-        public ActionResult GetAll()
+        public List<Product> GetProducts(string storeProcedure, string search)
         {
             List<Product> products = new List<Product>();
             using (SqlConnection con = new SqlConnection(StoreConnection.GetConnection()))
             {
-                using (SqlCommand cmd = new SqlCommand("Products_GetAllProducts", con))
+                using (SqlCommand cmd = new SqlCommand(storeProcedure, con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
+                    if (search != null)
+                        cmd.Parameters.AddWithValue("@Filter", search);
+
                     if (con.State != System.Data.ConnectionState.Open)
                         con.Open();
 
@@ -68,6 +71,18 @@ namespace _3.DatabaseConnectivity.Controllers
                     }
                 }
             }
+            return products;
+        }
+
+        public ActionResult Search(string search)
+        {
+            List<Product> products = GetProducts("Products_SearchProduct", search);
+            return View("GetAll", products);
+        }
+
+        public ActionResult GetAll()
+        {
+            List<Product> products = GetProducts("Products_GetAllProducts", null);
             return View(products);
         }
 

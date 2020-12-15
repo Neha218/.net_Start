@@ -5,14 +5,29 @@
 }
 
 <h2>Product Records</h2>
-
-<p>
-    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-primary" })
-</p>
+<hr />
+@using (Html.BeginForm("Search", "Product", FormMethod.Get))
+{
+    <div class="row">
+        <div class="col-md-10">
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <input type="text" id="search" name="search" class="form-control"/>
+                        <input type="submit" value="Search" class="btn btn-success"/>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-primary" })
+        </div>
+    </div>
+}
 @if (Model != null)
 {
     <table class="table table-bordered table-hover">
-        <tr>
+        <tr class="btn-primary">
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
