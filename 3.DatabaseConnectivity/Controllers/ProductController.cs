@@ -21,22 +21,26 @@ namespace _3.DatabaseConnectivity.Controllers
         [HttpPost]
         public ActionResult Create(Product product)
         {
-            using (SqlConnection con = new SqlConnection(StoreConnection.GetConnection()))
+            if (ModelState.IsValid)
             {
-                using (SqlCommand cmd = new SqlCommand("Products_SaveOrUpdate", con))
+                using (SqlConnection con = new SqlConnection(StoreConnection.GetConnection()))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@Id", product.Id);
-                    cmd.Parameters.AddWithValue("@Name", product.Name);
-                    cmd.Parameters.AddWithValue("@Price", product.Price);
-                    cmd.Parameters.AddWithValue("@Supplier", product.Supplier);
+                    using (SqlCommand cmd = new SqlCommand("Products_SaveOrUpdate", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@Id", product.Id);
+                        cmd.Parameters.AddWithValue("@Name", product.Name);
+                        cmd.Parameters.AddWithValue("@Price", product.Price);
+                        cmd.Parameters.AddWithValue("@Supplier", product.Supplier);
 
-                    if (con.State != System.Data.ConnectionState.Open)
-                        con.Open();
-                    cmd.ExecuteNonQuery();
+                        if (con.State != System.Data.ConnectionState.Open)
+                            con.Open();
+                        cmd.ExecuteNonQuery();
+                    }
                 }
+                return RedirectToAction("GetAll");
             }
-            return RedirectToAction("GetAll");
+            return View("Create", product);
         }
 
         public List<Product> GetProducts(string storeProcedure, string search)
